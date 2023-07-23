@@ -11,6 +11,7 @@
 
 :root {
   --board-size: 0.85;
+  --gray: #aaaaaa;
 }
 
 body {
@@ -41,7 +42,7 @@ body {
 h1 {
   font-weight: bold;
   text-align: center;
-  color: #bbbbbb;
+  color: var(--gray);
   /* color: darkgray; */
   font-size: calc(var(--board-size) / 3.9);
   margin-top: 0px;
@@ -52,7 +53,7 @@ h1 {
   grid-template-columns: repeat(8, 1fr);
   /* border: 10px solid #ebebeb; */
   /* border: 10px solid darkgray; */
-  border: 10px solid #bbbbbb;
+  border: 10px solid var(--gray);
   padding: 2px;
 
   border-radius: 7px;
@@ -79,7 +80,7 @@ h1 {
 .square:nth-child(16n + 11),
 .square:nth-child(16n + 13),
 .square:nth-child(16n + 15) {
-    background: #bbbbbb;
+    background: var(--gray);
 
     /* background: repeating-linear-gradient(
     -45deg,
@@ -98,7 +99,7 @@ h1 {
   ); */
 }
 
-.square:nth-child(2) .piece, 
+/* .square:nth-child(2) .piece, 
 .square:nth-child(4) .piece, 
 .square:nth-child(6) .piece, 
 .square:nth-child(8) .piece, 
@@ -111,7 +112,7 @@ h1 {
 .square:nth-child(22) .piece, 
 .square:nth-child(24) .piece {
     background: white;
-    border: 1px solid #bbbbbb;
+    border: 1px solid var(--gray);
 }
 
 .square:nth-child(41) .piece, 
@@ -126,9 +127,9 @@ h1 {
 .square:nth-child(59) .piece, 
 .square:nth-child(61) .piece, 
 .square:nth-child(63) .piece {
-    background: #2B1B17;
-    border: 1px solid #2B1B17;
-}
+    background: black;
+    border: 1px solid black;
+} */
 
 .piece {
   display: grid;
@@ -143,7 +144,32 @@ h1 {
 img {
   width: calc(var(--board-size) / 8 * 0.5);
   height: calc(var(--board-size) / 8 * 0.5);
-  fill: #bbbbbb;
+  opacity: 1;
+  /* fill: #bbbbbb; */
+}
+
+.white {
+  background: white;
+  border: 1px solid var(--gray);
+}
+
+.black {
+  background: black;
+  border: 1px solid black;
+}
+
+.selected {
+  /* box-sizing: border-box; */
+  /* background-color: whitesmoke !important;  */
+  /* border: 1px solid black; */
+
+  background: repeating-linear-gradient(
+    -45deg,
+    gray,
+    gray 2px,
+    #ffffff 2px,
+    #ffffff 4px
+  ) !important;
 }
 
 #designed {
@@ -169,7 +195,7 @@ img {
       height: var(--board-size-big);
       /* border: 15px solid #ebebeb; */
       /* border: 10px solid darkgrey; */
-      border: 10px solid #bbbbbb;
+      border: 10px solid var(--gray);
 
   }
 
