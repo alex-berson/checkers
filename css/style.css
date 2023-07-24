@@ -135,40 +135,44 @@ h1 {
   display: grid;
   place-items: center;
   /* box-sizing: border-box; */
+  border: 1px solid var(--gray);
   cursor: pointer;
   width: calc(var(--board-size) / 8 * 0.7);
   height: calc(var(--board-size) / 8 * 0.7);
   border-radius: 50%;
+  opacity: 0;
 }
 
 img {
   width: calc(var(--board-size) / 8 * 0.5);
   height: calc(var(--board-size) / 8 * 0.5);
-  opacity: 1;
+  opacity: 0;
   /* fill: #bbbbbb; */
+}
+
+.king img{
+  opacity: 1;
 }
 
 .white {
   background: white;
   border: 1px solid var(--gray);
+  opacity: 1;
 }
 
 .black {
   background: black;
   border: 1px solid black;
+  opacity: 1;
 }
 
 .selected {
-  /* box-sizing: border-box; */
-  /* background-color: whitesmoke !important;  */
-  /* border: 1px solid black; */
-
   background: repeating-linear-gradient(
     -45deg,
-    gray,
-    gray 2px,
-    #ffffff 2px,
-    #ffffff 4px
+    var(--gray),
+    var(--gray) 1.5px,
+    #ffffff 1.5px,
+    #ffffff 3px
   ) !important;
 }
 

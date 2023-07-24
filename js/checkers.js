@@ -4,32 +4,6 @@ let black = 1;
 let white = -1;
 let player = black;
 
-
-// const evaluate = (board) => {
-
-//     let score = 0;
-
-//     for(let i = 0; i < board.length; i++) {
-//         for(let j = 0; j < board[i].length; j++) {
-//             switch(board[i][j]) {
-//                 case 1: 
-//                     score += 1;
-//                     break;
-//                 case 2:
-//                     score -= 1;
-//                     break;
-//                 case 3:
-//                     score += 2;
-//                     break;
-//                 case 4:
-//                     score -= 2;
-//             }
-//         }
-//     }
-
-//     return score;
-// }
-
 const touchScreen = () => matchMedia('(hover: none)').matches;
 
 const setBoardSize = () => {
@@ -65,7 +39,9 @@ const fillBoard = () => {
     }
 }
 
-const validMove = (color,r,c,r2,c2) => r2 - r == color * -1 && Math.abs(c2 - c) == 1;
+const validMove = (color,r,c,r2,c2) => r2 - r == color * (-1) && Math.abs(c2 - c) == 1;
+
+const validJump = (color,r,c,r2,c2) =>  r2 - r == color * (-1) * 2 && Math.abs(c2 - c) == 2;
 
 const makeMove = (r,c,r2,c2) => {
 
@@ -73,13 +49,25 @@ const makeMove = (r,c,r2,c2) => {
     board[r][c] = 0;
 }
 
+const makeJump = (r,c,r2,c2) => {
+
+    board[r2][c2] = board[r][c];
+    board[r][c] = 0;
+    board[Math.min(r, r2) + 1][Math.min(c, c2) + 1] = 0
+}
+
 const movePiece = (r,c,r2,c2) => {
 
     let pieces = document.querySelectorAll('.piece');
     let color = pieces[r * 8 + c].classList.contains('white') ? 'white' : 'black';
+    let opponent = color == 'white' ? 'black' : 'white';
 
     pieces[r * 8 + c].classList.remove(color);
     pieces[r2 * 8 + c2].classList.add(color);
+
+    if (Math.abs(r2 - r) == 2) {
+        pieces[(Math.min(r, r2) + 1) * 8 + Math.min(c, c2) + 1].classList.remove(opponent);
+    }
 }
 
 const select = (e) => {
@@ -114,6 +102,12 @@ const select = (e) => {
                 makeMove(r0,c0,r,c);
                 movePiece(r0,c0,r,c);
             }
+
+            if (validJump(board[r0][c0],r0,c0,r,c)) {
+                squares.forEach(square => square.classList.remove('selected'));
+                makeJump(r0,c0,r,c);
+                movePiece(r0,c0,r,c);
+            }
     }
 }
 
@@ -144,9 +138,9 @@ const disableTouch = () => {
 const disableTapZoom = () => {
 
     const preventDefault = (e) => e.preventDefault();
+    let event = touchScreen() ? 'touchstart' : 'mousedown';
 
-    document.body.addEventListener('touchstart', preventDefault, {passive: false});
-    document.body.addEventListener('mousedown', preventDefault, {passive: false});
+    document.body.addEventListener(event, preventDefault, {passive: false});
 }
 
 const init = () => {
