@@ -3,6 +3,7 @@ let empty = 0;
 let black = 1;
 let white = -1;
 let player = black;
+let multiJump = false;
 
 const touchScreen = () => matchMedia('(hover: none)').matches;
 
@@ -120,7 +121,7 @@ const makeMove = (board,r,c,r2,c2) => {
 
     if ((r2 == 0 || r2 == 7) && Math.abs(board[r2][c2]) == 1) board[r2][c2] *= 2;
 
-    player = -player;
+    // player = -player;
 }
 
 const validJump = (board,r,c,r2,c2) =>  {
@@ -142,7 +143,18 @@ const makeJump = (board,r,c,r2,c2) => {
 
     if ((r2 == 0 || r2 == 7) && Math.abs(board[r2][c2]) == 1) board[r2][c2] *= 2;
 
-    player = -player;
+    // player = -player;
+}
+
+const win = (board) => {
+
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (Math.sign(board[r][c]) == -player && (canJump(board, r, c) || canMove(board, r, c))) return false;
+        }
+    }
+
+    return true;
 }
 
 const movePiece = (r,c,r2,c2) => {
@@ -177,9 +189,9 @@ const select = (e) => {
             return;
         case player: 
 
-            squares.forEach(square => square.classList.remove('selected'));
+            if (multiJump) return;
 
-            if (canJump(board,r,c)) console.log('CAN JUMP');
+            squares.forEach(square => square.classList.remove('selected'));
             if (canJump(board,r,c) || canMove(board,r,c) && !jumpsAvailable(board)) square.classList.add('selected');
             return;
 
@@ -198,6 +210,15 @@ const select = (e) => {
                 squares.forEach(square => square.classList.remove('selected'));
                 makeJump(board,r0,c0,r,c);
                 movePiece(r0,c0,r,c);
+
+                if (canJump(board,r,c)) {
+                    squares[r * 8 + c].classList.add('selected');
+                    multiJump = true;
+                    return;
+                }
+
+                multiJump = false;
+                player = -player;
                 return;
             }
 
@@ -207,8 +228,8 @@ const select = (e) => {
                 squares.forEach(square => square.classList.remove('selected'));
                 makeMove(board,r0,c0,r,c);
                 movePiece(r0,c0,r,c);
+                player = -player;
             }
-
     }
 }
 
