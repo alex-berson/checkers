@@ -35,11 +35,73 @@ const fillBoard = () => {
         for (let j = 0; j < 8; j++) {
             if (board[i][j] == white) pieces[i * 8 + j].classList.add('white');
             if (board[i][j] == black) pieces[i * 8 + j].classList.add('black');
-
-            if (board[i][j] == 2) pieces[i * 8 + j].classList.add('black');
-
         }
     }
+}
+
+const canMove = (board, r, c) => {
+
+    let color = Math.sign(board[r][c]);
+
+    const checkMove = (r, c) => c >= 0 && c <= 7 && r >= 0 && r <= 7 && board[r][c] == empty;
+    
+    if (checkMove(r + color * -1, c - 1) || checkMove(r + color * -1, c + 1)) return true;
+    if (Math.abs(board[r][c]) == 2 && (checkMove(r + color, c - 1) || checkMove(r + color, c + 1))) return true;
+
+    return false;
+}
+
+const canJump = (board, r, c) => {
+
+    let color = Math.sign(board[r][c]);
+
+    const checkJump = (r1, c1, r2, c2) => c1 >= 0 && c1 <= 7 && r1 >= 0 && r1 <= 7 && c2 >= 0 && c2 <= 7 && board[r1][c1] == empty && Math.sign(board[r2][c2]) == -color;
+
+    if (checkJump(r + color * -2, c - 2, r + color * -1, c - 1) || checkJump(r + color * -2, c + 2, r + color * -1, c + 1)) return true;
+    if (Math.abs(board[r][c]) == 2 && (checkJump(r + color * 2, c - 2, r + color, c - 1) || checkJump(r + color * 2, c + 2, r + color, c + 1))) return true;
+
+    return false;
+}
+
+// const canJump = (board, r, c) => {
+
+//     let color = Math.sign(board[r][c]);
+
+//     if (c - 2 >= 0 && r + color * (-2) >= 0 && r + color * (-2) <= 7 && board[r + color * (-2)][c - 2] == empty && board[r + color * (-1)][c - 1] == -color) return true;
+//     if (c + 2 <= 7 && r + color * (-2) >= 0 && r + color * (-2) <= 7 && board[r + color * (-2)][c + 2] == empty && board[r + color * (-1)][c + 1] == -color) return true;
+
+//     if (Math.abs(board[r][c]) == 1) return false;
+
+//     if (c - 2 >= 0 && r + color * 2 >= 0 && r + color * 2 <= 7 && board[r + color * 2][c - 2] == empty && board[r + color][c - 1] == -color) return true;
+//     if (c + 2 <= 7 && r + color * 2 >= 0 && r + color * 2 <= 7 && board[r + color * 2][c + 2] == empty && board[r + color][c + 1] == -color) return true;
+
+//     return false;
+// }
+
+// const canMove = (board,r,c) => {
+
+//     let color = Math.sign(board[r][c]);
+
+//     if (c - 1 >= 0 && r + color * (-1) >= 0 && r + color * (-1) <= 7 && board[r + color * (-1)][c - 1] == empty) return true;
+//     if (c + 1 <= 7 && r + color * (-1) >= 0 && r + color * (-1) <= 7 && board[r + color * (-1)][c + 1] == empty) return true;
+
+//     if (Math.abs(board[r][c]) == 1) return false;
+
+//     if (c - 1 >= 0 && r + color >= 0 && r + color <= 7 && board[r + color][c - 1] == empty) return true;
+//     if (c + 1 <= 7 && r + color >= 0 && r + color <= 7 && board[r + color][c + 1] == empty) return true;
+
+//     return false;
+// }
+
+const jumpsAvailable = (board) => {
+
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (Math.sign(board[r][c]) == player && canJump(board, r, c)) return true;
+        }
+    }
+
+    return false;
 }
 
 const validMove = (board,r,c,r2,c2) => {
@@ -116,7 +178,9 @@ const select = (e) => {
         case player: 
 
             squares.forEach(square => square.classList.remove('selected'));
-            square.classList.add('selected');
+
+            if (canJump(board,r,c)) console.log('CAN JUMP');
+            if (canJump(board,r,c) || canMove(board,r,c) && !jumpsAvailable(board)) square.classList.add('selected');
             return;
 
         case empty:
@@ -130,17 +194,21 @@ const select = (e) => {
 
             console.log(player);
 
+            if (validJump(board, r0,c0,r,c)) {
+                squares.forEach(square => square.classList.remove('selected'));
+                makeJump(board,r0,c0,r,c);
+                movePiece(r0,c0,r,c);
+                return;
+            }
+
+            if (jumpsAvailable(board)) return;
+
             if (validMove(board, r0,c0,r,c)) {
                 squares.forEach(square => square.classList.remove('selected'));
                 makeMove(board,r0,c0,r,c);
                 movePiece(r0,c0,r,c);
             }
 
-            if (validJump(board, r0,c0,r,c)) {
-                squares.forEach(square => square.classList.remove('selected'));
-                makeJump(board,r0,c0,r,c);
-                movePiece(r0,c0,r,c);
-            }
     }
 }
 
