@@ -16,8 +16,10 @@
 
 body {
   font-family: 'Roboto', sans-serif;
-  margin: 0;
   cursor: default;
+  transition: opacity 2s ease;
+  margin: 0;
+  opacity: 0;
 }
 
 #outer {
@@ -180,8 +182,8 @@ img {
   text-align: center;
   align-self: auto;
   color: white;
-  font-size: 0.6em; 
-  margin-top: -1.3em;
+  font-size: 9px; 
+  margin-top: -12px;
 }
 
 @media (min-width: 460px) and (min-height: 460px) {
@@ -191,7 +193,7 @@ img {
   }
 
   h1 {
-    font-size: 101.5px;
+    font-size: 105px;
   }
 
   .board {
@@ -199,7 +201,7 @@ img {
       height: var(--board-size-big);
       /* border: 15px solid #ebebeb; */
       /* border: 10px solid darkgrey; */
-      border: 10px solid var(--gray);
+      border: 15px solid var(--gray);
 
   }
 
@@ -219,7 +221,7 @@ img {
   }
 
   #designed {
-    font-size: 0.6em; 
-    margin-top: -1.2em;
+    font-size: 12.8px; 
+    margin-top: -16.9px;
   }
 }
