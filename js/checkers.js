@@ -1,13 +1,15 @@
 let board;
 let empty = 0;
-let black = 1;
 let white = -1;
+let black = 1;
 let player = black;
 let multiJump = false;
 
 const showBoard = () => document.body.style.opacity = 1;
 
 const touchScreen = () => matchMedia('(hover: none)').matches;
+
+const timeOver = (startTime, timeLimit) => Date.now() - startTime >= timeLimit;
 
 const shuffle = (array) => {
 
@@ -40,6 +42,15 @@ const initBoard = () => {
              [1, 0, 1, 0, 1, 0, 1, 0],
              [0, 1, 0, 1, 0, 1, 0, 1],
              [1, 0, 1, 0, 1, 0, 1, 0]];
+
+    // board = [[0, 0, 0, 0, 0, 0, 0, 0],
+    //          [0, 0, 0, 0, 0, 0, 0, 0],
+    //          [0, 0, 0, -1, 0, 0, 0, 0],
+    //          [0, 0, 0, 0, 0, 0, 0, 0],
+    //          [0, 0, 0, 1, 0, 0, 0, 0],
+    //          [0, 0, 0, 0, 1, 0, 0, 0],
+    //          [0, 0, 0, 0, 0, -2, 0, 0],
+    //          [0, 0, 0, 0, 0, 0, 0, 0]];    
 }
 
 const fillBoard = () => {
@@ -48,8 +59,11 @@ const fillBoard = () => {
 
     for (let i = 0; i < 8; i++) {
         for (let j = 0; j < 8; j++) {
-            if (board[i][j] == white) pieces[i * 8 + j].classList.add('white');
-            if (board[i][j] == black) pieces[i * 8 + j].classList.add('black');
+            // if (board[i][j] == white) pieces[i * 8 + j].classList.add('white');
+            // if (board[i][j] == black) pieces[i * 8 + j].classList.add('black');
+
+            if (Math.sign(board[i][j]) == white) pieces[i * 8 + j].classList.add('white');
+            if (Math.sign(board[i][j]) == black) pieces[i * 8 + j].classList.add('black');
         }
     }
 }
@@ -128,14 +142,6 @@ const validMove = (board,r,c,r2,c2) => {
     return r2 - r == color * (-1) && Math.abs(c2 - c) == 1;
 };
 
-// const makeMove = (board,r,c,r2,c2) => {
-
-//     board[r2][c2] = board[r][c];
-//     board[r][c] = 0;
-
-//     if ((r2 == 0 || r2 == 7) && Math.abs(board[r2][c2]) == 1) board[r2][c2] *= 2;
-// }
-
 const validJump = (board,r,c,r2,c2) =>  {
 
     let color = board[r][c];
@@ -163,7 +169,7 @@ const makeMove = (board,r,c,r2,c2) => {
     return king;
 }
 
-const win = (board) => {
+const win = (board, player) => {
 
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
@@ -174,7 +180,7 @@ const win = (board) => {
     return true;
 }
 
-const availableMoves = (board) => {
+const availableMoves = (board, player) => {
 
     const checkMove = (r, c) => c >= 0 && c <= 7 && r >= 0 && r <= 7 && board[r][c] == empty;
 
@@ -197,7 +203,7 @@ const availableMoves = (board) => {
     return moves;
 }
 
-const availableJumps = (board) => {
+const availableJumps = (board, player, r0, c0) => {
 
     const checkJump = (color,r1, c1, r2, c2) => c1 >= 0 && c1 <= 7 && r1 >= 0 && r1 <= 7 && c2 >= 0 && c2 <= 7 && board[r1][c1] == empty && Math.sign(board[r2][c2]) == -color;
 
@@ -208,6 +214,7 @@ const availableJumps = (board) => {
 
             let color = Math.sign(board[r][c]);
 
+            if (r0 != null && (r0 != r || c0 != c)) continue;
             if (color != player) continue;
             if (checkJump(color,r + color * -2, c - 2, r + color * -1, c - 1)) jumps.push([r,c,r + color * -2,c - 2]);
             if (checkJump(color,r + color * -2, c + 2, r + color * -1, c + 1)) jumps.push([r,c,r + color * -2,c + 2]);
@@ -222,25 +229,124 @@ const availableJumps = (board) => {
 
 const randomAI = (board, r, c) => {
 
-    let jumps = availableJumps(board);
-    let moves = jumps.length > 0 ? jumps : availableMoves(board);
-
-    if (r != -1) {
-
-        shuffle(moves);
-
-        for (let move of moves) {
-            if (move[0] == r, move[1] == c) return move;
-        }
-    }
+    let jumps = availableJumps(board, player, r, c);
+    let moves = jumps.length > 0 ? jumps : availableMoves(board, player);
 
     return moves[Math.trunc(Math.random() * moves.length)];
 }
 
-const aiMove = (r = -1, c = -1) => {
+const eval = (board) => {
 
-    let [r1,c1,r2,c2] = randomAI(board, r, c);
+    let score = 0;
 
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            score += board[r][c] * player * 10;
+        }
+    }
+
+    return score;
+}
+
+const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeLimit, init, r, c) => {
+
+    let bestMove;
+    // let opponent = -player;
+
+    if (win(board, -player)) return [null, -1000 * (depth + 1)];
+    if (win(board, player)) return [null, 1000 * (depth + 1)];
+    if (depth == 0) return [null, eval(board)];
+    if (timeOver(startTime, timeLimit)) return [null, null];
+
+    if (maximizingPlayer) {
+        
+        let bestScore = -Infinity;
+        let jumps = availableJumps(board, player, r, c);
+        let moves = jumps.length > 0 ? jumps : availableMoves(board, player);
+
+        if (init) shuffle(moves);
+
+        for (let move of moves) {
+
+            let [r1, c1, r2, c2] = move;
+            let tempBoard = board.map(arr => arr.slice());
+            let king = makeMove(tempBoard, r1, c1, r2, c2);
+            let maximizingPlayer = Math.abs(r2 - r1) == 2 && canJump(tempBoard,r2,c2) && !king;
+
+            if (!maximizingPlayer) r2 = c2 = null;
+
+            [_, score] = alphabeta(tempBoard, depth - 1, alpha, beta, maximizingPlayer, startTime, timeLimit, false, r2, c2);
+
+            if (score > bestScore) [bestScore, bestMove] = [score, move];
+
+            alpha = Math.max(alpha, score);
+
+            if (alpha >= beta) break;
+        }
+
+        return [bestMove, bestScore];
+
+    } else {
+
+        let bestScore = Infinity;
+        let jumps = availableJumps(board, -player, r, c);
+        let moves = jumps.length > 0 ? jumps : availableMoves(board, -player);
+
+        if (init) shuffle(moves);
+        
+        for (let move of moves) {
+
+            let [r1, c1, r2, c2] = move;
+            let tempBoard = board.map(arr => arr.slice());
+            let king = makeMove(tempBoard, r1, c1, r2, c2);
+            let maximizingPlayer = !(Math.abs(r2 - r1) == 2 && canJump(tempBoard, r2, c2) && !king);
+            
+            if (maximizingPlayer) r2 = c2 = null;
+
+            [_, score] = alphabeta(tempBoard, depth - 1, alpha, beta, maximizingPlayer, startTime, timeLimit, false, r2, c2);
+    
+            if (score < bestScore) [bestScore, bestMove] = [score, move];
+
+            beta = Math.min(beta, score);
+
+            if (beta <= alpha) break;
+        }
+
+        return [bestMove, bestScore];
+    }
+}
+
+const minimax = (board, maxDepth, timeLimit, r, c) => {
+
+    let startTime = Date.now();
+    let bestMove;
+    let depth = 0;
+
+    do {
+
+        depth++;
+
+        let [move, _] = alphabeta(board, depth, -Infinity, Infinity, true, startTime, timeLimit, true, r, c);
+
+        if (timeOver(startTime, timeLimit)) break;
+
+        bestMove = move;
+
+    } while (!timeOver(startTime, timeLimit) && depth < maxDepth);
+
+    timeOver(startTime, timeLimit) ? console.log(depth - 1) : console.log(depth);
+
+    do {} while (!timeOver(startTime, timeLimit));
+
+    return bestMove;
+}
+
+const aiMove = (r = null, c = null) => {
+
+    let timeLimit = 500;
+    // let [r1,c1,r2,c2] = randomAI(board, r, c);
+    let [r1,c1,r2,c2] = minimax(board, Infinity, timeLimit, r, c);
+    // let [r1,c1,r2,c2] = player == black ?  minimax(board, 4, timeLimit, r, c) : minimax(board, Infinity, timeLimit, r, c);
     let king = makeMove(board,r1,c1,r2,c2);
 
     movePiece(r1,c1,r2,c2);
@@ -253,8 +359,9 @@ const aiMove = (r = -1, c = -1) => {
     player = -player;
 
     enableTouch();
-}
 
+    // setTimeout(aiMove, 500);
+}
 
 const movePiece = (r,c,r2,c2) => {
 
@@ -320,8 +427,8 @@ const select = (e) => {
                 disableTouch();
                 setTimeout(aiMove, 500);
 
-                console.log(availableJumps(board));
-                console.log(availableMoves(board));
+                // console.log(availableJumps(board));
+                // console.log(availableMoves(board));
 
                 return;
             }
@@ -337,8 +444,8 @@ const select = (e) => {
                 disableTouch();
                 setTimeout(aiMove, 500);
 
-                console.log(availableJumps(board));
-                console.log(availableMoves(board));
+                // console.log(availableJumps(board));
+                // console.log(availableMoves(board));
             }
     }
 }
@@ -384,8 +491,10 @@ const init = () => {
     enableTouch();
     showBoard();
 
-    console.log(availableJumps(board));
-    console.log(availableMoves(board));
+    // setTimeout(aiMove, 500);
+
+    // console.log(availableJumps(board));
+    // console.log(availableMoves(board));
 }
 
 window.onload = () => document.fonts.ready.then(init());
