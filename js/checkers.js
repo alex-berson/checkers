@@ -55,16 +55,27 @@ const initBoard = () => {
 
 const fillBoard = () => {
 
+    let squares = [1,3,5,7,8,10,12,14,17,19,21,23,40,42,44,46,49,51,53,55,56,58,60,62];
+
+    let places = document.querySelectorAll('.place');
     let pieces = document.querySelectorAll('.piece');
+    let style = window.getComputedStyle(pieces[0]);
+    let matrix = new WebKitCSSMatrix(style.transform);
 
-    for (let i = 0; i < 8; i++) {
-        for (let j = 0; j < 8; j++) {
-            // if (board[i][j] == white) pieces[i * 8 + j].classList.add('white');
-            // if (board[i][j] == black) pieces[i * 8 + j].classList.add('black');
+    if (matrix.m41 != 0) return;
 
-            if (Math.sign(board[i][j]) == white) pieces[i * 8 + j].classList.add('white');
-            if (Math.sign(board[i][j]) == black) pieces[i * 8 + j].classList.add('black');
-        }
+    for (let [i, n] of squares.entries()) {
+
+        let rectPiece = pieces[i].getBoundingClientRect();
+        let rectPlace = places[n].getBoundingClientRect();
+        let offsetLeft =  rectPlace.left - rectPiece.left;
+        let offsetTop =  rectPlace.top - rectPiece.top;
+        let [r, c] = [Math.trunc(n / 8), n % 8];
+
+        pieces[i].dataset.r = r;
+        pieces[i].dataset.c = c;
+
+        pieces[i].style.transform = `translate(${offsetLeft}px, ${offsetTop}px)`;
     }
 }
 
@@ -140,7 +151,7 @@ const validMove = (board,r,c,r2,c2) => {
     if (Math.abs(color) == 2) return Math.abs(r2 - r) == 1 && Math.abs(c2 - c) == 1
     
     return r2 - r == color * (-1) && Math.abs(c2 - c) == 1;
-};
+}
 
 const validJump = (board,r,c,r2,c2) =>  {
 
@@ -151,7 +162,6 @@ const validJump = (board,r,c,r2,c2) =>  {
     
     return r2 - r == color * (-1) * 2 && Math.abs(c2 - c) == 2;
 }
-
 
 const makeMove = (board,r,c,r2,c2) => {
 
@@ -251,11 +261,10 @@ const eval = (board) => {
 const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeLimit, init, r, c) => {
 
     let bestMove;
-    // let opponent = -player;
 
     if (win(board, -player)) return [null, -1000 * (depth + 1)];
     if (win(board, player)) return [null, 1000 * (depth + 1)];
-    if (depth == 0) return [null, eval(board)];
+    if (depth <= 0 && r == null) return [null, eval(board)];
     if (timeOver(startTime, timeLimit)) return [null, null];
 
     if (maximizingPlayer) {
@@ -336,6 +345,8 @@ const minimax = (board, maxDepth, timeLimit, r, c) => {
 
     timeOver(startTime, timeLimit) ? console.log(depth - 1) : console.log(depth);
 
+    // timeOver(startTime, timeLimit) ? alert(depth - 1) : alert(depth);
+
     do {} while (!timeOver(startTime, timeLimit));
 
     return bestMove;
@@ -352,31 +363,61 @@ const aiMove = (r = null, c = null) => {
     movePiece(r1,c1,r2,c2);
 
     if (Math.abs(r2 - r1) == 2 && canJump(board,r2,c2) && !king) {
-        setTimeout(aiMove, 500, r2, c2);
+        setTimeout(aiMove, 600, r2, c2);
         return;
     }
 
     player = -player;
 
-    enableTouch();
+    setTimeout(enableTouch, 500);
 
     // setTimeout(aiMove, 500);
 }
 
-const movePiece = (r,c,r2,c2) => {
+const movePiece = (r1,c1,r2,c2) => {
 
+    let places = document.querySelectorAll('.place');
     let pieces = document.querySelectorAll('.piece');
-    let color = pieces[r * 8 + c].classList.contains('white') ? 'white' : 'black';
-    let opponent = color == 'white' ? 'black' : 'white';
+    let i = [...pieces].findIndex(piece => Number(piece.dataset.r) == r1 && Number(piece.dataset.c) == c1);
+    let piece = pieces[i];
+    let style = window.getComputedStyle(piece);
+    let matrix = new WebKitCSSMatrix(style.transform);
+    let rectPiece = piece.getBoundingClientRect();
+    let rectPlace = places[r2 * 8 + c2].getBoundingClientRect();
 
-    pieces[r * 8 + c].classList.remove(color, 'king');
-    pieces[r2 * 8 + c2].classList.add(color);
+    piece.dataset.r = r2;
+    piece.dataset.c = c2;
 
-    if (Math.abs(board[r2][c2]) == 2) pieces[r2 * 8 + c2].classList.add('king');
+    piece.classList.add('move');
 
-    if (Math.abs(r2 - r) == 2) {
-        pieces[(Math.min(r, r2) + 1) * 8 + Math.min(c, c2) + 1].classList.remove(opponent, 'king');
-    }
+    setTimeout(() => {
+
+        if (Math.abs(r2 - r1) == 2) {
+
+            let r = Math.min(r1, r2) + 1;
+            let c = Math.min(c1, c2) + 1;
+            let i = [...pieces].findIndex(piece => Number(piece.dataset.r) == r && Number(piece.dataset.c) == c);
+
+            // pieces[i].classList.remove('black','white');
+
+            pieces[i].classList.add('removed');
+
+            delete pieces[i].dataset.r;
+            delete pieces[i].dataset.c;
+        }
+    }, 200)
+
+    piece.addEventListener('transitionend', e => {
+
+        let piece = e.currentTarget;
+
+        piece.classList.remove('move');
+
+        if (Math.abs(board[r2][c2]) == 2) piece.classList.add('king');
+
+    }, {once: true});
+
+    piece.style.transform = `translate(${Math.round(matrix.m41 - (rectPiece.left - rectPlace.left))}px, ${Math.round(matrix.m42 - (rectPiece.top - rectPlace.top))}px)`;
 }
 
 const select = (e) => {
@@ -398,7 +439,9 @@ const select = (e) => {
             if (multiJump) return;
 
             squares.forEach(square => square.classList.remove('selected'));
+
             if (canJump(board,r,c) || canMove(board,r,c) && !jumpsAvailable(board)) square.classList.add('selected');
+
             return;
 
         case empty:
@@ -425,10 +468,7 @@ const select = (e) => {
                 player = -player;
 
                 disableTouch();
-                setTimeout(aiMove, 500);
-
-                // console.log(availableJumps(board));
-                // console.log(availableMoves(board));
+                setTimeout(aiMove, 600);
 
                 return;
             }
@@ -442,10 +482,7 @@ const select = (e) => {
                 player = -player;
 
                 disableTouch();
-                setTimeout(aiMove, 500);
-
-                // console.log(availableJumps(board));
-                // console.log(availableMoves(board));
+                setTimeout(aiMove, 600);
             }
     }
 }
@@ -485,16 +522,13 @@ const disableTapZoom = () => {
 const init = () => {
 
     disableTapZoom();
-    setBoardSize();
+    setBoardSize();1
     initBoard();
     fillBoard();
     enableTouch();
     showBoard();
 
     // setTimeout(aiMove, 500);
-
-    // console.log(availableJumps(board));
-    // console.log(availableMoves(board));
 }
 
 window.onload = () => document.fonts.ready.then(init());

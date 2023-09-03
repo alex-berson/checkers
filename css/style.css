@@ -52,6 +52,7 @@ h1 {
 
 .board {
   display: grid;
+  position: relative;
   grid-template-columns: repeat(8, 1fr);
   /* border: 10px solid #ebebeb; */
   /* border: 10px solid darkgray; */
@@ -133,16 +134,21 @@ h1 {
     border: 1px solid black;
 } */
 
-.piece {
-  display: grid;
-  place-items: center;
-  /* box-sizing: border-box; */
-  border: 1px solid var(--gray);
+.place, .piece{
   cursor: pointer;
+  border: 1px solid var(--gray);
   width: calc(var(--board-size) / 8 * 0.7);
   height: calc(var(--board-size) / 8 * 0.7);
   border-radius: 50%;
   opacity: 0;
+}
+
+.piece {
+  display: grid;
+  position: absolute;
+  place-items: center;
+  opacity: 1;
+  pointer-events: none;
 }
 
 img {
@@ -153,19 +159,25 @@ img {
 }
 
 .king img {
+  transition: opacity 0.2s ease-in-out;
   opacity: 1;
 }
 
 .white {
   background: white;
   border: 1px solid var(--gray);
-  opacity: 1;
+  /* opacity: 1; */
 }
 
 .black {
   background: black;
   border: 1px solid black;
-  opacity: 1;
+  /* opacity: 1; */
+}
+
+.removed {
+  transition: opacity 0.5s ease-in-out;
+  opacity: 0;
 }
 
 .selected {
@@ -178,12 +190,25 @@ img {
   ) !important;
 }
 
+.move {
+  z-index: 100;
+  transition: all 0.5s ease-in-out;
+}
+
 #designed {
   text-align: center;
+  position: relative;
   align-self: auto;
   color: white;
   font-size: 9px; 
   margin-top: -12px;
+}
+
+@media (orientation: landscape) and (max-height: 460px) {
+
+  h1 {
+      display: none;
+  }
 }
 
 @media (min-width: 460px) and (min-height: 460px) {
@@ -210,10 +235,15 @@ img {
       height: calc(var(--board-size-big) / 8);
   } 
 
-  .piece {
+  .place, .piece {
     width: calc(var(--board-size-big) / 8 * 0.7);
     height: calc(var(--board-size-big) / 8 * 0.7);
-  }  
+  }
+
+  /* .piece {
+    width: calc(var(--board-size-big) / 8 * 0.7);
+    height: calc(var(--board-size-big) / 8 * 0.7);
+  }   */
   
   img {
     width: calc(var(--board-size-big) / 8 * 0.5);
