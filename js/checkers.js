@@ -258,12 +258,14 @@ const eval = (board) => {
     return score;
 }
 
-const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeLimit, init, r, c) => {
+const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeLimit, init, r, c, initCol) => {
 
     let bestMove;
 
-    if (win(board, -player)) return [null, -1000 * (depth + 1)];
-    if (win(board, player)) return [null, 1000 * (depth + 1)];
+    // if (win(board, -player)) return [null, -1000 * (depth + 1)];
+    // if (win(board, player)) return [null, 1000 * (depth + 1)];
+    if (win(board, -player)) return [null, -1000];
+    if (win(board, player)) return [null, 1000];
     if (depth <= 0 && r == null) return [null, eval(board)];
     if (timeOver(startTime, timeLimit)) return [null, null];
 
@@ -274,6 +276,7 @@ const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeL
         let moves = jumps.length > 0 ? jumps : availableMoves(board, player);
 
         if (init) shuffle(moves);
+        if (initCol != null) moves = [...new Set([initCol, ...moves].map(JSON.stringify))].map(JSON.parse);
 
         for (let move of moves) {
 
@@ -284,7 +287,7 @@ const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeL
 
             if (!maximizingPlayer) r2 = c2 = null;
 
-            [_, score] = alphabeta(tempBoard, depth - 1, alpha, beta, maximizingPlayer, startTime, timeLimit, false, r2, c2);
+            [_, score] = alphabeta(tempBoard, depth - 1, alpha, beta, maximizingPlayer, startTime, timeLimit, false, r2, c2, null);
 
             if (score > bestScore) [bestScore, bestMove] = [score, move];
 
@@ -302,6 +305,7 @@ const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeL
         let moves = jumps.length > 0 ? jumps : availableMoves(board, -player);
 
         if (init) shuffle(moves);
+        if (initCol != null) moves = [...new Set([initCol, ...moves].map(JSON.stringify))].map(JSON.parse);
         
         for (let move of moves) {
 
@@ -312,7 +316,7 @@ const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeL
             
             if (maximizingPlayer) r2 = c2 = null;
 
-            [_, score] = alphabeta(tempBoard, depth - 1, alpha, beta, maximizingPlayer, startTime, timeLimit, false, r2, c2);
+            [_, score] = alphabeta(tempBoard, depth - 1, alpha, beta, maximizingPlayer, startTime, timeLimit, false, r2, c2, null);
     
             if (score < bestScore) [bestScore, bestMove] = [score, move];
 
@@ -328,26 +332,30 @@ const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeL
 const minimax = (board, maxDepth, timeLimit, r, c) => {
 
     let startTime = Date.now();
-    let bestMove;
+    let initCol = null;
+    let bestMove, bestScore;
     let depth = 0;
 
     do {
 
         depth++;
 
-        let [move, _] = alphabeta(board, depth, -Infinity, Infinity, true, startTime, timeLimit, true, r, c);
+        let [move, score] = alphabeta(board, depth, -Infinity, Infinity, true, startTime, timeLimit, true, r, c, initCol);
 
         if (timeOver(startTime, timeLimit)) break;
 
-        bestMove = move;
+        bestMove = initCol = move;
+        bestScore = score; //
 
-    } while (!timeOver(startTime, timeLimit) && depth < maxDepth);
+    } while (!timeOver(startTime, timeLimit) && depth < maxDepth && Math.abs(score) != 1000);
 
     timeOver(startTime, timeLimit) ? console.log(depth - 1) : console.log(depth);
 
     // timeOver(startTime, timeLimit) ? alert(depth - 1) : alert(depth);
 
     do {} while (!timeOver(startTime, timeLimit));
+
+    console.log('SCORE: ', bestScore);
 
     return bestMove;
 }
