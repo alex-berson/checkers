@@ -360,6 +360,37 @@ const minimax = (board, maxDepth, timeLimit, r, c) => {
     return bestMove;
 }
 
+const newGame = () => {
+
+    console.log('NEW GAME');
+
+    let pieces = document.querySelectorAll('.piece');
+
+    pieces.forEach(piece => piece.classList.add('removed'));
+
+    setTimeout(() => {
+
+        pieces.forEach(piece => {
+            piece.removeAttribute('style');
+            piece.classList.remove('king');
+        });
+
+        initBoard();
+        fillBoard();
+        enableTouch();
+
+        pieces.forEach(piece => piece.classList.remove('removed'));
+
+    }, 600);
+}
+
+const endGame = () => {
+
+    let event = touchScreen() ? 'touchstart' : 'mousedown';
+
+    document.querySelector('.board').addEventListener(event, newGame);
+}
+
 const aiMove = (r = null, c = null) => {
 
     let timeLimit = 500;
@@ -375,11 +406,16 @@ const aiMove = (r = null, c = null) => {
         return;
     }
 
+    if (win(board, player)) {
+        setTimeout(endGame, 600);
+        return;
+    }
+
     player = -player;
 
-    setTimeout(enableTouch, 500);
+    setTimeout(enableTouch, 600);
 
-    // setTimeout(aiMove, 500);
+    // setTimeout(aiMove, 600);
 }
 
 const movePiece = (r1,c1,r2,c2) => {
@@ -473,9 +509,16 @@ const select = (e) => {
                 }
 
                 multiJump = false;
-                player = -player;
 
                 disableTouch();
+
+                if (win(board, player)) {
+                    setTimeout(endGame, 600);
+                    return;
+                }
+
+                player = -player;
+
                 setTimeout(aiMove, 600);
 
                 return;
@@ -487,9 +530,16 @@ const select = (e) => {
                 squares.forEach(square => square.classList.remove('selected'));
                 makeMove(board,r0,c0,r,c);
                 movePiece(r0,c0,r,c);
-                player = -player;
 
                 disableTouch();
+
+                if (win(board, player)) {
+                    setTimeout(endGame, 600);
+                    return;
+                }
+
+                player = -player;
+
                 setTimeout(aiMove, 600);
             }
     }
@@ -527,6 +577,13 @@ const disableTapZoom = () => {
     document.body.addEventListener(event, preventDefault, {passive: false});
 }
 
+const endGame2 = () => {
+
+    let event = touchScreen() ? 'touchstart' : 'mousedown';
+
+    document.querySelector('h1').addEventListener(event, newGame);
+}
+
 const init = () => {
 
     disableTapZoom();
@@ -535,6 +592,8 @@ const init = () => {
     fillBoard();
     enableTouch();
     showBoard();
+
+    endGame2();
 
     // setTimeout(aiMove, 500);
 }
