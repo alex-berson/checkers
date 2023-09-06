@@ -47,8 +47,20 @@ h1 {
   color: var(--gray);
   /* color: darkgray; */
   font-size: calc(var(--board-size) / 3.9);
-  margin-top: 0px;
+  /* margin-top: 0px; */
+
+  margin-top: -10px;
+  margin-bottom: 8px;
  } 
+
+.draw {
+  width: calc(var(--board-size) / 10);
+  height: calc(var(--board-size) / 10);
+  cursor: pointer;
+  margin: auto;
+  margin-bottom: 12px;
+
+}
 
 .board {
   display: grid;
@@ -68,6 +80,7 @@ h1 {
 .square {
   display: grid;
   place-items: center;
+  cursor: pointer;
   background-color: white;
   /* background-color: whitesmoke; */
   width: var(--board-size) / 8;
@@ -135,7 +148,6 @@ h1 {
 } */
 
 .place, .piece{
-  cursor: pointer;
   border: 1px solid var(--gray);
   width: calc(var(--board-size) / 8 * 0.7);
   height: calc(var(--board-size) / 8 * 0.7);
@@ -220,6 +232,11 @@ img {
 
   h1 {
     font-size: 105px;
+  }
+
+  .draw {
+    width: calc(var(--board-size-big) / 10);
+    height: calc(var(--board-size-big) / 10);  
   }
 
   .board {

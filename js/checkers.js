@@ -362,9 +362,10 @@ const minimax = (board, maxDepth, timeLimit, r, c) => {
 
 const newGame = () => {
 
-    console.log('NEW GAME');
-
     let pieces = document.querySelectorAll('.piece');
+
+    disableTouch();
+    disableDraw();
 
     pieces.forEach(piece => piece.classList.add('removed'));
 
@@ -377,10 +378,13 @@ const newGame = () => {
 
         initBoard();
         fillBoard();
-        enableTouch();
 
         pieces.forEach(piece => piece.classList.remove('removed'));
 
+        setTimeout(() => {
+            enableTouch();
+            enableDraw();
+        }, 500);
     }, 600);
 }
 
@@ -545,28 +549,36 @@ const select = (e) => {
     }
 }
 
+const enableDraw = () => {
+
+    let draw = document.querySelector('.draw');
+    let event = touchScreen() ? 'touchstart' : 'mousedown';
+
+    draw.addEventListener(event, newGame);
+}
+
+const disableDraw = () => {
+
+    let draw = document.querySelector('.draw');
+    let event = touchScreen() ? 'touchstart' : 'mousedown';
+
+    draw.removeEventListener(event, newGame);
+}
+
 const enableTouch = () => {
 
     let squares = document.querySelectorAll('.square');
+    let event = touchScreen() ? 'touchstart' : 'mousedown';
 
-    for (let square of squares) {
-
-        let event = touchScreen() ? 'touchstart' : 'mousedown';
-
-        square.addEventListener(event, select);
-    }
+    squares.forEach(square => square.addEventListener(event, select));
 }
 
 const disableTouch = () => {
 
     let squares = document.querySelectorAll('.square');
+    let event = touchScreen() ? 'touchstart' : 'mousedown';
 
-    for (let square of squares) {
-
-        let event = touchScreen() ? 'touchstart' : 'mousedown';
-
-        square.removeEventListener(event, select);
-    }
+    squares.forEach(square => square.removeEventListener(event, select));
 }
 
 const disableTapZoom = () => {
@@ -577,13 +589,6 @@ const disableTapZoom = () => {
     document.body.addEventListener(event, preventDefault, {passive: false});
 }
 
-const endGame2 = () => {
-
-    let event = touchScreen() ? 'touchstart' : 'mousedown';
-
-    document.querySelector('h1').addEventListener(event, newGame);
-}
-
 const init = () => {
 
     disableTapZoom();
@@ -591,9 +596,8 @@ const init = () => {
     initBoard();
     fillBoard();
     enableTouch();
+    enableDraw();
     showBoard();
-
-    endGame2();
 
     // setTimeout(aiMove, 500);
 }
