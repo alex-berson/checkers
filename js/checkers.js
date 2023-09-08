@@ -1,7 +1,7 @@
 let board;
 let empty = 0;
-let white = -1;
 let black = 1;
+let white = -1;
 let player = black;
 let multiJump = false;
 
@@ -43,6 +43,8 @@ const initBoard = () => {
              [0, 1, 0, 1, 0, 1, 0, 1],
              [1, 0, 1, 0, 1, 0, 1, 0]];
 
+    // board = board.map(row => row.map(val => val == 0 ? 0 : val * human));
+
     // board = [[0, 0, 0, 0, 0, 0, 0, 0],
     //          [0, 0, 0, 0, 0, 0, 0, 0],
     //          [0, 0, 0, -1, 0, 0, 0, 0],
@@ -51,32 +53,147 @@ const initBoard = () => {
     //          [0, 0, 0, 0, 1, 0, 0, 0],
     //          [0, 0, 0, 0, 0, -2, 0, 0],
     //          [0, 0, 0, 0, 0, 0, 0, 0]];    
+
+    // board = [
+    //     [
+    //         0,
+    //         -1,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         -1
+    //     ],
+    //     [
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0
+    //     ],
+    //     [
+    //         0,
+    //         1,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         -1
+    //     ],
+    //     [
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         -2,
+    //         0
+    //     ],
+    //     [
+    //         0,
+    //         -1,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0
+    //     ],
+    //     [
+    //         0,
+    //         0,
+    //         -1,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0
+    //     ],
+    //     [
+    //         0,
+    //         -1,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0
+    //     ],
+    //     [
+    //         1,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         0,
+    //         -2,
+    //         0
+    //     ]
+    // ]
 }
+
+// const fillBoard = () => {
+
+//     let whites = [1,3,5,7,8,10,12,14,17,19,21,23]
+//     let blacks = [40,42,44,46,49,51,53,55,56,58,60,62];
+//     let places = document.querySelectorAll('.place');
+//     let pieces = document.querySelectorAll('.piece');
+//     let style = window.getComputedStyle(pieces[0]);
+//     let matrix = new WebKitCSSMatrix(style.transform);
+//     let squares = board[7][0] == black ? [...whites, ...blacks] : [...blacks, ...whites];
+
+//     if (matrix.m41 != 0) return;
+
+//     for (let [i, n] of squares.entries()) {
+
+//         let rectPiece = pieces[i].getBoundingClientRect();
+//         let rectPlace = places[n].getBoundingClientRect();
+//         let offsetLeft =  rectPlace.left - rectPiece.left;
+//         let offsetTop =  rectPlace.top - rectPiece.top;
+//         let [r, c] = [Math.trunc(n / 8), n % 8];
+
+//         pieces[i].dataset.r = r;
+//         pieces[i].dataset.c = c;
+
+//         pieces[i].style.transform = `translate(${offsetLeft}px, ${offsetTop}px)`;
+//     }
+// }
 
 const fillBoard = () => {
 
-    let squares = [1,3,5,7,8,10,12,14,17,19,21,23,40,42,44,46,49,51,53,55,56,58,60,62];
-
+    let i = 0;
     let places = document.querySelectorAll('.place');
     let pieces = document.querySelectorAll('.piece');
-    let style = window.getComputedStyle(pieces[0]);
-    let matrix = new WebKitCSSMatrix(style.transform);
+    
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
 
-    if (matrix.m41 != 0) return;
+            if (board[r][c] == 0) continue;
 
-    for (let [i, n] of squares.entries()) {
+            let color = board[r][c] == black ? 'black' : 'white';
+            let rectPiece = pieces[i].getBoundingClientRect();
+            let rectPlace = places[r * 8 + c].getBoundingClientRect();
+            let offsetLeft =  rectPlace.left - rectPiece.left;
+            let offsetTop =  rectPlace.top - rectPiece.top;
 
-        let rectPiece = pieces[i].getBoundingClientRect();
-        let rectPlace = places[n].getBoundingClientRect();
-        let offsetLeft =  rectPlace.left - rectPiece.left;
-        let offsetTop =  rectPlace.top - rectPiece.top;
-        let [r, c] = [Math.trunc(n / 8), n % 8];
+            pieces[i].classList.add(color);
+            pieces[i].dataset.r = r;
+            pieces[i].dataset.c = c;
+            pieces[i].style.transform = `translate(${offsetLeft}px, ${offsetTop}px)`;
 
-        pieces[i].dataset.r = r;
-        pieces[i].dataset.c = c;
-
-        pieces[i].style.transform = `translate(${offsetLeft}px, ${offsetTop}px)`;
+            i++;
+        }
     }
+
+    // for (let j = i; j < 24; j++) {
+    //     pieces[j].classList.add('removed');
+    // }
 }
 
 const canMove = (board, r, c) => {
@@ -179,16 +296,16 @@ const makeMove = (board,r,c,r2,c2) => {
     return king;
 }
 
-const win = (board, player) => {
+// const win = (board, player) => {
 
-    for (let r = 0; r < 8; r++) {
-        for (let c = 0; c < 8; c++) {
-            if (Math.sign(board[r][c]) == -player && (canJump(board, r, c) || canMove(board, r, c))) return false;
-        }
-    }
+//     for (let r = 0; r < 8; r++) {
+//         for (let c = 0; c < 8; c++) {
+//             if (Math.sign(board[r][c]) == -player && (canJump(board, r, c) || canMove(board, r, c))) return false;
+//         }
+//     }
 
-    return true;
-}
+//     return true;
+// }
 
 const availableMoves = (board, player) => {
 
@@ -264,8 +381,8 @@ const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeL
 
     // if (win(board, -player)) return [null, -1000 * (depth + 1)];
     // if (win(board, player)) return [null, 1000 * (depth + 1)];
-    if (win(board, -player)) return [null, -1000];
-    if (win(board, player)) return [null, 1000];
+    // if (win(board, -player)) return [null, -1000];
+    // if (win(board, player)) return [null, 1000];
     if (depth <= 0 && r == null) return [null, eval(board)];
     if (timeOver(startTime, timeLimit)) return [null, null];
 
@@ -275,6 +392,7 @@ const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeL
         let jumps = availableJumps(board, player, r, c);
         let moves = jumps.length > 0 ? jumps : availableMoves(board, player);
 
+        if (moves.length == 0) return [null, -1000];
         if (init) shuffle(moves);
         if (initCol != null) moves = [...new Set([initCol, ...moves].map(JSON.stringify))].map(JSON.parse);
 
@@ -304,6 +422,7 @@ const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeL
         let jumps = availableJumps(board, -player, r, c);
         let moves = jumps.length > 0 ? jumps : availableMoves(board, -player);
 
+        if (moves.length == 0) return [null, 1000];
         if (init) shuffle(moves);
         if (initCol != null) moves = [...new Set([initCol, ...moves].map(JSON.stringify))].map(JSON.parse);
         
@@ -347,7 +466,7 @@ const minimax = (board, maxDepth, timeLimit, r, c) => {
         bestMove = initCol = move;
         bestScore = score; //
 
-    } while (!timeOver(startTime, timeLimit) && depth < maxDepth && Math.abs(score) != 1000);
+    } while (!timeOver(startTime, timeLimit) && depth < maxDepth && Math.abs(bestScore) != 1000);
 
     timeOver(startTime, timeLimit) ? console.log(depth - 1) : console.log(depth);
 
@@ -362,24 +481,40 @@ const minimax = (board, maxDepth, timeLimit, r, c) => {
 
 const newGame = () => {
 
+    let squares = document.querySelectorAll('.square');
     let pieces = document.querySelectorAll('.piece');
 
     disableTouch();
     disableDraw();
 
     pieces.forEach(piece => piece.classList.add('removed'));
+    squares.forEach(square => square.classList.remove('selected'));
 
     setTimeout(() => {
 
         pieces.forEach(piece => {
             piece.removeAttribute('style');
-            piece.classList.remove('king');
+            piece.classList.remove('white','black','king');
         });
+
+        [white, black] = [black, white];
+        player = black;
+        multiJump = false;
 
         initBoard();
         fillBoard();
 
         pieces.forEach(piece => piece.classList.remove('removed'));
+
+        if (board[7][0] == white) {
+
+            setTimeout(() => {
+                aiMove();
+                enableDraw();
+            }, 600);
+
+            return;
+        }
 
         setTimeout(() => {
             enableTouch();
@@ -392,7 +527,7 @@ const endGame = () => {
 
     let event = touchScreen() ? 'touchstart' : 'mousedown';
 
-    document.querySelector('.board').addEventListener(event, newGame);
+    document.querySelector('.board').addEventListener(event, newGame, {once: true});
 }
 
 const aiMove = (r = null, c = null) => {
@@ -480,9 +615,12 @@ const select = (e) => {
     switch (Math.sign(board[r][c])) {
 
         case opponent:
+            console.log('OPP');
             // squares.forEach(square => square.classList.remove('selected'));
             return;
         case player: 
+
+            console.log('PL', canMove(board,r,c));
 
             if (multiJump) return;
 
@@ -592,7 +730,7 @@ const disableTapZoom = () => {
 const init = () => {
 
     disableTapZoom();
-    setBoardSize();1
+    setBoardSize();
     initBoard();
     fillBoard();
     enableTouch();
