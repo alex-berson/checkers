@@ -59,7 +59,11 @@ h1 {
   cursor: pointer;
   margin: auto;
   margin-bottom: 12px;
+  transition: opacity 0.2s ease;
+}
 
+.disable {
+  opacity: 0.5;
 }
 
 .board {
@@ -161,7 +165,7 @@ h1 {
   place-items: center;
   opacity: 1;
   pointer-events: none;
-  transition: opacity 0.5s ease-in-out;
+  transition: opacity 0.3s ease-in-out;
 }
 
 img {

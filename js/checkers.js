@@ -4,12 +4,16 @@ let black = 1;
 let white = -1;
 let player = black;
 let multiJump = false;
+let moves = []; //
+let auto = false;
 
 const showBoard = () => document.body.style.opacity = 1;
 
 const touchScreen = () => matchMedia('(hover: none)').matches;
 
 const timeOver = (startTime, timeLimit) => Date.now() - startTime >= timeLimit;
+
+const chebyshevDist = (r1, c1, r2, c2) => Math.max(Math.abs(r2 - r1), Math.abs(c2 - c1));
 
 const shuffle = (array) => {
 
@@ -43,127 +47,15 @@ const initBoard = () => {
              [0, 1, 0, 1, 0, 1, 0, 1],
              [1, 0, 1, 0, 1, 0, 1, 0]];
 
-    // board = board.map(row => row.map(val => val == 0 ? 0 : val * human));
-
     // board = [[0, 0, 0, 0, 0, 0, 0, 0],
     //          [0, 0, 0, 0, 0, 0, 0, 0],
-    //          [0, 0, 0, -1, 0, 0, 0, 0],
-    //          [0, 0, 0, 0, 0, 0, 0, 0],
-    //          [0, 0, 0, 1, 0, 0, 0, 0],
-    //          [0, 0, 0, 0, 1, 0, 0, 0],
     //          [0, 0, 0, 0, 0, -2, 0, 0],
-    //          [0, 0, 0, 0, 0, 0, 0, 0]];    
-
-    // board = [
-    //     [
-    //         0,
-    //         -1,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         -1
-    //     ],
-    //     [
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0
-    //     ],
-    //     [
-    //         0,
-    //         1,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         -1
-    //     ],
-    //     [
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         -2,
-    //         0
-    //     ],
-    //     [
-    //         0,
-    //         -1,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0
-    //     ],
-    //     [
-    //         0,
-    //         0,
-    //         -1,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0
-    //     ],
-    //     [
-    //         0,
-    //         -1,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0
-    //     ],
-    //     [
-    //         1,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         0,
-    //         -2,
-    //         0
-    //     ]
-    // ]
+    //          [0, 0, 0, 0, 0, 0, 0, 0],
+    //          [0, 0, 0, -2, 0, 0, 0, 0],
+    //          [0, 0, 2, 0, 0, 0, 0, 0],
+    //          [0, 0, 0, 0, 0, 0, 0, 0],
+    //          [0, 0, 0, 0, 0, 0, 0, 0]];
 }
-
-// const fillBoard = () => {
-
-//     let whites = [1,3,5,7,8,10,12,14,17,19,21,23]
-//     let blacks = [40,42,44,46,49,51,53,55,56,58,60,62];
-//     let places = document.querySelectorAll('.place');
-//     let pieces = document.querySelectorAll('.piece');
-//     let style = window.getComputedStyle(pieces[0]);
-//     let matrix = new WebKitCSSMatrix(style.transform);
-//     let squares = board[7][0] == black ? [...whites, ...blacks] : [...blacks, ...whites];
-
-//     if (matrix.m41 != 0) return;
-
-//     for (let [i, n] of squares.entries()) {
-
-//         let rectPiece = pieces[i].getBoundingClientRect();
-//         let rectPlace = places[n].getBoundingClientRect();
-//         let offsetLeft =  rectPlace.left - rectPiece.left;
-//         let offsetTop =  rectPlace.top - rectPiece.top;
-//         let [r, c] = [Math.trunc(n / 8), n % 8];
-
-//         pieces[i].dataset.r = r;
-//         pieces[i].dataset.c = c;
-
-//         pieces[i].style.transform = `translate(${offsetLeft}px, ${offsetTop}px)`;
-//     }
-// }
 
 const fillBoard = () => {
 
@@ -176,13 +68,18 @@ const fillBoard = () => {
 
             if (board[r][c] == 0) continue;
 
-            let color = board[r][c] == black ? 'black' : 'white';
+            // let color = board[r][c] == black ? 'black' : 'white';
+            let color = Math.sign(board[r][c]) == black ? 'black' : 'white';
+
             let rectPiece = pieces[i].getBoundingClientRect();
             let rectPlace = places[r * 8 + c].getBoundingClientRect();
             let offsetLeft =  rectPlace.left - rectPiece.left;
             let offsetTop =  rectPlace.top - rectPiece.top;
 
             pieces[i].classList.add(color);
+
+            if (Math.abs(board[r][c]) == 2) pieces[i].classList.add('king'); //
+
             pieces[i].dataset.r = r;
             pieces[i].dataset.c = c;
             pieces[i].style.transform = `translate(${offsetLeft}px, ${offsetTop}px)`;
@@ -191,8 +88,10 @@ const fillBoard = () => {
         }
     }
 
-    // for (let j = i; j < 24; j++) {
-    //     pieces[j].classList.add('removed');
+    // for (piece of pieces) {
+    //     if (!piece.classList.contains('white') && !piece.classList.contains('black')) {
+    //         piece.classList.add('removed');
+    //     }
     // }
 }
 
@@ -224,13 +123,13 @@ const canJump = (board, r, c) => {
 
 //     let color = Math.sign(board[r][c]);
 
-//     if (c - 2 >= 0 && r + color * (-2) >= 0 && r + color * (-2) <= 7 && board[r + color * (-2)][c - 2] == empty && board[r + color * (-1)][c - 1] == -color) return true;
-//     if (c + 2 <= 7 && r + color * (-2) >= 0 && r + color * (-2) <= 7 && board[r + color * (-2)][c + 2] == empty && board[r + color * (-1)][c + 1] == -color) return true;
+//     if (c - 2 >= 0 && r + color * (-2) >= 0 && r + color * (-2) <= 7 && board[r + color * (-2)][c - 2] == empty && Math.sign(board[r + color * (-1)][c - 1]) == -color) return true;
+//     if (c + 2 <= 7 && r + color * (-2) >= 0 && r + color * (-2) <= 7 && board[r + color * (-2)][c + 2] == empty && Math.sign(board[r + color * (-1)][c + 1]) == -color) return true;
 
 //     if (Math.abs(board[r][c]) == 1) return false;
 
-//     if (c - 2 >= 0 && r + color * 2 >= 0 && r + color * 2 <= 7 && board[r + color * 2][c - 2] == empty && board[r + color][c - 1] == -color) return true;
-//     if (c + 2 <= 7 && r + color * 2 >= 0 && r + color * 2 <= 7 && board[r + color * 2][c + 2] == empty && board[r + color][c + 1] == -color) return true;
+//     if (c - 2 >= 0 && r + color * 2 >= 0 && r + color * 2 <= 7 && board[r + color * 2][c - 2] == empty && Math.sign(board[r + color][c - 1]) == -color) return true;
+//     if (c + 2 <= 7 && r + color * 2 >= 0 && r + color * 2 <= 7 && board[r + color * 2][c + 2] == empty && Math.sign(board[r + color][c + 1]) == -color) return true;
 
 //     return false;
 // }
@@ -296,16 +195,16 @@ const makeMove = (board,r,c,r2,c2) => {
     return king;
 }
 
-// const win = (board, player) => {
+const win = (board, player) => {
 
-//     for (let r = 0; r < 8; r++) {
-//         for (let c = 0; c < 8; c++) {
-//             if (Math.sign(board[r][c]) == -player && (canJump(board, r, c) || canMove(board, r, c))) return false;
-//         }
-//     }
+    for (let r = 0; r < 8; r++) {
+        for (let c = 0; c < 8; c++) {
+            if (Math.sign(board[r][c]) == -player && (canJump(board, r, c) || canMove(board, r, c))) return false;
+        }
+    }
 
-//     return true;
-// }
+    return true;
+}
 
 const availableMoves = (board, player) => {
 
@@ -365,34 +264,108 @@ const randomAI = (board, r, c) => {
 const eval = (board) => {
 
     let score = 0;
+    // let numPlMoves = 0;
+    // let numOppMoves = 0;
+    let playerPieces = [];
+    let opponentPieces = [];
+    // let allKings = true;
 
     for (let r = 0; r < 8; r++) {
         for (let c = 0; c < 8; c++) {
-            score += board[r][c] * player * 10;
+
+            if (board[r][c] == 0) continue;
+
+            let sign = Math.sign(board[r][c]) * player;
+
+             // score += board[r][c] * player * 10;
+
+            // if (Math.abs(board[r][c]) == 1) allKings = false;
+
+            // sign > 0 ? numPlMoves++ : numOppMoves++; 
+
+            // if (sign > 0 && Math.abs(board[r][c] == 2)) plMoves.push([r, c]);
+
+            // if (sign < 0 && Math.abs(board[r][c] == 2)) oppMoves.push([r, c]);
+
+
+            sign > 0 ? playerPieces.push([r, c]) : opponentPieces.push([r, c]); 
+
+
+            // if (player == 1) {
+            //     score += (Math.abs(board[r][c]) * 5 + 5) * sign;
+            //     continue;
+            // }
+
+            // if (board[r][c] == -1 && r <= 3 || board[r][c] == 1 && r >= 4) score += sign * 5;
+            // if (board[r][c] == -1 && r >= 4 || board[r][c] == 1 && r <= 3) score += sign * 7;
+            // if (Math.abs(board[r][c]) == 2) score += sign * 10;
+
+            // if (board[r][c] == -1) score += sign * (6 + r) * 100;
+            // if (board[r][c] == 1) score += sign * (6 + (7 - r)) * 100;
+            // if (Math.abs(board[r][c]) == 2) score += sign * 14 * 100;
+
+            // score += board[r][c] * player * 500;
+
+            if (board[r][c] == -1) score += sign  * 500 + r;
+            if (board[r][c] == 1) score += sign * 500 + (7 - r);
+            if (Math.abs(board[r][c]) == 2) score += sign * 1000;
+
+
+
+            // if (Math.abs(board[r][c]) == 1) score += sign * 500;
+            // if (Math.abs(board[r][c]) == 2) score += sign * 750;
+
+            // if (c == 0 && board[r][c] == -1)  score += sign * 4;
+            // if (c == 7 && board[r][c] == 1)  score += sign * 4;
+
+            // if (r >= 3 && r <= 4 && c >= 2 && c <= 5) score += sign * 2.5;
+            // if (r >= 3 && r <= 4 && (c < 2 || c > 5)) score += sign * 0.5;
         }
     }
+
+    // if (!allKings) return score;
+
+    if (playerPieces.length > 5 && opponentPieces.length > 5) return score;
+
+    // if (numPlMoves > 5 && numOppMoves > 5) return score;
+
+
+    let distance = 0;
+
+    for (let [r1, c1] of playerPieces) {
+        for (let [r2, c2] of opponentPieces) {
+
+            // let [r1, c1] = pieceP;
+            // let [r2, c2] = pieceO;
+
+            // if (r1 == r2 && c1 == c2 || Math.abs(board[r1, c1]) == 1 || Math.abs(board[r2, c2]) == 1) continue;
+
+            if (r1 == r2 && c1 == c2) continue;
+
+            distance += chebyshevDist(r1, c1, r2, c2);
+        }
+    }
+ 
+    // score += plus.length >= minus.length ? -distance : distance;
+
+    score += playerPieces.length >= opponentPieces.length ? -distance : distance;
+
 
     return score;
 }
 
 const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeLimit, init, r, c, initCol) => {
 
-    let bestMove;
-
-    // if (win(board, -player)) return [null, -1000 * (depth + 1)];
-    // if (win(board, player)) return [null, 1000 * (depth + 1)];
-    // if (win(board, -player)) return [null, -1000];
-    // if (win(board, player)) return [null, 1000];
     if (depth <= 0 && r == null) return [null, eval(board)];
     if (timeOver(startTime, timeLimit)) return [null, null];
 
     if (maximizingPlayer) {
         
-        let bestScore = -Infinity;
+        let bestMove, bestScore = -Infinity;
         let jumps = availableJumps(board, player, r, c);
         let moves = jumps.length > 0 ? jumps : availableMoves(board, player);
 
-        if (moves.length == 0) return [null, -1000];
+        if (moves.length == 0) return [null, -1000000];
         if (init) shuffle(moves);
         if (initCol != null) moves = [...new Set([initCol, ...moves].map(JSON.stringify))].map(JSON.parse);
 
@@ -418,11 +391,11 @@ const alphabeta = (board, depth, alpha, beta, maximizingPlayer, startTime, timeL
 
     } else {
 
-        let bestScore = Infinity;
+        let bestMove, bestScore = Infinity;
         let jumps = availableJumps(board, -player, r, c);
         let moves = jumps.length > 0 ? jumps : availableMoves(board, -player);
 
-        if (moves.length == 0) return [null, 1000];
+        if (moves.length == 0) return [null, 1000000];
         if (init) shuffle(moves);
         if (initCol != null) moves = [...new Set([initCol, ...moves].map(JSON.stringify))].map(JSON.parse);
         
@@ -466,7 +439,7 @@ const minimax = (board, maxDepth, timeLimit, r, c) => {
         bestMove = initCol = move;
         bestScore = score; //
 
-    } while (!timeOver(startTime, timeLimit) && depth < maxDepth && Math.abs(bestScore) != 1000);
+    } while (!timeOver(startTime, timeLimit) && depth < maxDepth && Math.abs(bestScore) != 1000000);
 
     timeOver(startTime, timeLimit) ? console.log(depth - 1) : console.log(depth);
 
@@ -483,12 +456,14 @@ const newGame = () => {
 
     let squares = document.querySelectorAll('.square');
     let pieces = document.querySelectorAll('.piece');
+    let event = touchScreen() ? 'touchstart' : 'mousedown';
 
     disableTouch();
     disableDraw();
 
     pieces.forEach(piece => piece.classList.add('removed'));
     squares.forEach(square => square.classList.remove('selected'));
+    document.querySelector('.board').removeEventListener(event, newGame);
 
     setTimeout(() => {
 
@@ -500,6 +475,8 @@ const newGame = () => {
         [white, black] = [black, white];
         player = black;
         multiJump = false;
+
+        moves = []; //
 
         initBoard();
         fillBoard();
@@ -523,11 +500,13 @@ const newGame = () => {
     }, 600);
 }
 
-const endGame = () => {
+const gameOver = () => {
 
     let event = touchScreen() ? 'touchstart' : 'mousedown';
 
-    document.querySelector('.board').addEventListener(event, newGame, {once: true});
+    document.querySelector('.board').addEventListener(event, newGame);
+
+    disableDraw();
 }
 
 const aiMove = (r = null, c = null) => {
@@ -546,7 +525,7 @@ const aiMove = (r = null, c = null) => {
     }
 
     if (win(board, player)) {
-        setTimeout(endGame, 600);
+        setTimeout(gameOver, 600);
         return;
     }
 
@@ -554,7 +533,7 @@ const aiMove = (r = null, c = null) => {
 
     setTimeout(enableTouch, 600);
 
-    // setTimeout(aiMove, 600);
+    if (auto) setTimeout(aiMove, 600); //
 }
 
 const movePiece = (r1,c1,r2,c2) => {
@@ -564,9 +543,11 @@ const movePiece = (r1,c1,r2,c2) => {
     let i = [...pieces].findIndex(piece => Number(piece.dataset.r) == r1 && Number(piece.dataset.c) == c1);
     let piece = pieces[i];
     let style = window.getComputedStyle(piece);
-    let matrix = new WebKitCSSMatrix(style.transform);
+    let matrix = new DOMMatrix(style.transform);
     let rectPiece = piece.getBoundingClientRect();
     let rectPlace = places[r2 * 8 + c2].getBoundingClientRect();
+
+    moves.push([r1,c1,r2,c2]); //
 
     piece.dataset.r = r2;
     piece.dataset.c = c2;
@@ -644,6 +625,8 @@ const select = (e) => {
                 let king = makeMove(board,r0,c0,r,c);
                 movePiece(r0,c0,r,c);
 
+                console.log(!king, canJump(board,r,c));
+
                 if (!king && canJump(board,r,c)) {
                     squares[r * 8 + c].classList.add('selected');
                     multiJump = true;
@@ -655,7 +638,7 @@ const select = (e) => {
                 disableTouch();
 
                 if (win(board, player)) {
-                    setTimeout(endGame, 600);
+                    setTimeout(gameOver, 600);
                     return;
                 }
 
@@ -676,7 +659,7 @@ const select = (e) => {
                 disableTouch();
 
                 if (win(board, player)) {
-                    setTimeout(endGame, 600);
+                    setTimeout(gameOver, 600);
                     return;
                 }
 
@@ -692,6 +675,7 @@ const enableDraw = () => {
     let draw = document.querySelector('.draw');
     let event = touchScreen() ? 'touchstart' : 'mousedown';
 
+    draw.classList.remove('disable');
     draw.addEventListener(event, newGame);
 }
 
@@ -700,6 +684,7 @@ const disableDraw = () => {
     let draw = document.querySelector('.draw');
     let event = touchScreen() ? 'touchstart' : 'mousedown';
 
+    draw.classList.add('disable');
     draw.removeEventListener(event, newGame);
 }
 
@@ -737,7 +722,9 @@ const init = () => {
     enableDraw();
     showBoard();
 
-    // setTimeout(aiMove, 500);
+    if (auto) setTimeout(aiMove, 600); //
+
+    // setTimeout(aiMove, 600); //
 }
 
-window.onload = () => document.fonts.ready.then(init());
+window.addEventListener('load', () => document.fonts.ready.then(init));
