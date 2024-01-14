@@ -1,8 +1,8 @@
 let board;
 let empty = 0;
-let white = -1;
 let black = 1;
-let player = black;
+let white = -1;
+let first = player = black;
 let multiJump = false;
 let moves = []; //
 let auto = false; //
@@ -489,6 +489,8 @@ const newGame = () => {
 
     let squares = document.querySelectorAll('.square');
     let pieces = document.querySelectorAll('.piece');
+    let crowns = document.querySelectorAll('.draw img');
+            
     // let event = touchScreen() ? 'touchstart' : 'mousedown';
 
     disableTouch();
@@ -501,7 +503,13 @@ const newGame = () => {
     document.querySelector('.board').removeEventListener('touchstart', newGame);
     document.querySelector('.board').removeEventListener('mousedown', newGame);
 
+    crowns.forEach(crown => {
+        crown.classList.remove('zoom-c');
+    });
+
     setTimeout(() => {
+
+        crowns.forEach(crown => crown.classList.remove('removed'));
 
         pieces.forEach(piece => {
             piece.removeAttribute('style');
@@ -536,18 +544,32 @@ const newGame = () => {
     }, 600);
 }
 
+// const showWinner = () => {
+
+//     let crowns = document.querySelectorAll('.draw img');
+//     let sign = first == black ? 1 : -1;
+//     crowns[0.5 * player * sign + 0.5].classList.add('removed');
+//     crowns.forEach(crown => crown.classList.add('origin', 'zoom-c'));
+// }
+
 const gameOver = () => {
 
-    // let event = touchScreen() ? 'touchstart' : 'mousedown';
+    let crowns = document.querySelectorAll('.draw img');
+    let sign = first == black ? 1 : -1;
+    crowns[0.5 * player * sign + 0.5].classList.add('removed');
+    crowns.forEach(crown => crown.classList.add('origin', 'zoom-c'));
 
-    // document.querySelector('.board').addEventListener(event, newGame);
-    document.querySelector('.board').addEventListener('touchstart', newGame);
-    document.querySelector('.board').addEventListener('mousedown', newGame);
+    setTimeout(() => {
+        document.querySelector('.board').addEventListener('touchstart', newGame);
+        document.querySelector('.board').addEventListener('mousedown', newGame);
+    }, 500);
 
-    disableDraw();
+    // disableDraw();
 }
 
 const aiMove = (r = null, c = null) => {
+
+    console.log(player);
 
     let timeLimit = 500;
     // let [r1,c1,r2,c2] = randomAI(board, r, c);
@@ -1248,7 +1270,7 @@ const disableDraw = () => {
     let draw = document.querySelector('.draw');
     // let event = touchScreen() ? 'touchstart' : 'mousedown';
 
-    draw.classList.add('disable');
+    // draw.classList.add('disable');
     // draw.removeEventListener(event, newGame);
 
     draw.removeEventListener('touchstart', newGame);
@@ -1328,6 +1350,42 @@ const disableTapZoom = () => {
     document.addEventListener('mousedown', preventDefault, {passive: false});
 }
 
+
+const crown = () => {
+
+    setTimeout(() => {
+
+        let winner = white;
+
+        let crowns = document.querySelectorAll('.draw img');
+
+        crowns[0.5 * winner + 0.5].classList.add('removed');
+
+        crowns.forEach(crown => crown.classList.add('zoom-c', 'origin'));
+
+        setTimeout(() => {
+    
+            let crowns = document.querySelectorAll('.draw img');
+                
+            crowns.forEach(crown => {
+                
+                crown.classList.remove('zoom-c');
+
+                crown.addEventListener('transitionend', e => {
+
+                    let crown = e.currentTarget;
+            
+                    crown.classList.remove('removed');
+            
+                }, {once: true});
+
+            });
+    
+        }, 1000);
+
+    }, 2000);
+}
+
 const init = () => {
 
     disableTapZoom();
@@ -1341,6 +1399,8 @@ const init = () => {
     if (auto) setTimeout(aiMove, 600); //
 
     // setTimeout(aiMove, 600); //
+
+    // crown();
 }
 
 window.addEventListener('load', () => document.fonts.ready.then(init));
