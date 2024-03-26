@@ -253,16 +253,12 @@ img {
 
 @media (prefers-color-scheme: dark) {
 
-    :root {
-        --white: #eeeeee;
-    }
-
     body, .square {
         background-color: black;
     }
 
     .white > div {
-        background-color: var(--white);
+        background-color: white;
     }
 
     .black > div {

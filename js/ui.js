@@ -20,18 +20,13 @@ const fillBoard = () => {
 
             if (board[r][c] == 0) continue;
 
-            // let color = board[r][c] == black ? 'black' : 'white';
-
-            let color = Math.sign(board[r][c]) == black ? 'black' : 'white'; //
-
+            let color = board[r][c] == black ? 'black' : 'white';
             let rectPiece = pieces[i].getBoundingClientRect();
             let rectPlace = places[r * size + c].getBoundingClientRect();
             let offsetLeft =  rectPlace.left - rectPiece.left;
             let offsetTop =  rectPlace.top - rectPiece.top;
 
             pieces[i].classList.add(color);
-
-            if (Math.abs(board[r][c]) == 2) pieces[i].classList.add('king'); //
 
             pieces[i].dataset.r = r;
             pieces[i].dataset.c = c;
@@ -52,8 +47,6 @@ const movePiece = (r1,c1,r2,c2) => {
     let matrix = new DOMMatrix(style.transform);
     let rectPiece = piece.getBoundingClientRect();
     let rectPlace = places[r2 * size + c2].getBoundingClientRect();
-
-    moves.push([r1,c1,r2,c2]); //
 
     piece.dataset.r = r2;
     piece.dataset.c = c2;
@@ -144,7 +137,7 @@ const startMove = (e) => {
     let jumps = jumpsAvailable(board);
     let squares = document.querySelectorAll('.square');
 
-    if (Math.sign(board[r][c]) != player) return;
+    if (isNaN(r) || isNaN(c) || Math.sign(board[r][c]) != player) return;
 
     if (multiJump) {
 

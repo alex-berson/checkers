@@ -1,6 +1,6 @@
 # Checkers
 
-Remove or block all of your opponent's pieces.<br> 
+Capture or block all of your opponent's pieces.<br> 
 You can [play Checkers against the AI online](https://alex-berson.github.io/checkers/) or <br>
 [<img src="images/Download_on_the_App_Store_Badge_US-UK_RGB_blk_092917.svg">](https://apps.apple.com/us/app/checkers/id6476962739)
 
@@ -19,7 +19,7 @@ When a piece first enters the *kings row*, the opponent’s back row, it must be
 
 A win is scored when an opponent’s pieces are all captured or blocked so that they cannot move. When neither side can force a victory and the trend of play becomes repetitious, a draw game is declared.
 
-There are numerous national and regional variants of checkers, including German, Spanish, Italian, Portuguese, Russian, Czech, Slovak, Hungarian, Turkish, Armenian, Canadian, Brazilian, Argentinian, Jamaican, Ghanaian, Mozambican, Tanzanian, Malaysian/Singaporean, Myanmar, Thai, and Polish or International checkers, among others. The main differences among these variants lie in the color of the pieces that move first; the ability of ordinary pieces to capture backwards; the ability of kings to move any number of squares at a time, known as *flying kings*; the ability of pieces to continue capturing in the same move after becoming a king; the capturing rules when multiple options are available; the size, the orientation and the layout of the board, and the movement patterns of the pieces.
+There are numerous national and regional variants of checkers, including German, Spanish, Italian, Portuguese, Russian, Czech, Slovak, Hungarian, Turkish, Armenian, Canadian, Brazilian, Argentinian, Jamaican, Ghanaian, Mozambican, Tanzanian, Malaysian/Singaporean, Myanmar, Thai, and Polish or International checkers, among others. The major differences among these variants lie in the color of the pieces that move first; the ability of ordinary pieces to capture backwards; the ability of kings to move any number of squares at a time, known as *flying kings*; the ability of pieces to continue capturing in the same move after becoming a king; the capturing rules when multiple options are available; the size, the orientation and the layout of the board, and the movement patterns of the pieces.
 
 In most languages, checkers is called *dame*, *dames*, *damas*, or a similar term* that refers to ladies. The same term is also used to describe pieces that have been promoted to kings.
  
@@ -74,7 +74,7 @@ Vietnamese - Cờ đam
 ```
 </details>
 
-## Screeshot
+## Screenshot
 
 <p align="center">
   <img src="images/screenshot.png" alt="Screenshot">

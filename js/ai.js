@@ -16,14 +16,6 @@ const shuffle = (array) => {
     return array;
 }
 
-// const randomAI = (board, r, c) => {
-
-//     let jumps = availableJumps(board, player, r, c);
-//     let moves = jumps.length > 0 ? jumps : availableMoves(board, player);
-
-//     return moves[Math.trunc(Math.random() * moves.length)];
-// }
-
 const evaluation = (board) => {
 
     let score = 0;

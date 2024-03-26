@@ -8,175 +8,6 @@ let first = player;
 let multiJump = false;
 let aiTimer;
 
-let moves = []; //
-let auto = false; //
-// let steps = [[11,15],[23,19],[8,11],[22,17],[11,16],[24,20],[16,23],[27,18],[18,11],[7,16],[20,11]]; //
-// let steps = [[10,15],[8,4],[16,11],[4,8],[11,4]]; //
-
-
-let steps1 = [
-    [
-        5,
-        2,
-        4,
-        3
-    ],
-    [
-        2,
-        3,
-        3,
-        2
-    ],
-    [
-        6,
-        1,
-        5,
-        2
-    ],
-    [
-        2,
-        5,
-        3,
-        6
-    ],
-    [
-        5,
-        2,
-        4,
-        1
-    ],
-    [
-        2,
-        1,
-        3,
-        0
-    ],
-    [
-        4,
-        1,
-        2,
-        3
-    ],
-    [
-        1,
-        2,
-        3,
-        4
-    ],
-    [
-        3,
-        4,
-        5,
-        2
-    ],
-    [
-        6,
-        3,
-        4,
-        1
-    ],
-    [
-        3,
-        0,
-        5,
-        2
-    ]
-]
-
-let steps2 = [
-    [
-        3,
-        2,
-        2,
-        1
-    ],
-    [
-        0,
-        1,
-        1,
-        0
-    ],
-    [
-        2,
-        3,
-        3,
-        2
-    ],
-    [
-        1,
-        0,
-        0,
-        1
-    ],
-    [
-        2,
-        1,
-        1,
-        0
-    ],
-    [
-        0,
-        1,
-        1,
-        2
-    ],
-    [
-        1,
-        0,
-        0,
-        1
-    ],
-    [
-        1,
-        2,
-        0,
-        3
-    ],
-    [
-        3,
-        2,
-        4,
-        3
-    ],
-    [
-        0,
-        3,
-        1,
-        4
-    ],
-    [
-        4,
-        3,
-        3,
-        4
-    ],
-    [
-        1,
-        4,
-        0,
-        5
-    ],
-    [
-        3,
-        4,
-        2,
-        5
-    ],
-    [
-        0,
-        5,
-        1,
-        6
-    ],
-    [
-        2,
-        5,
-        0,
-        7
-    ]
-]
-
-
 const initBoard = () => {
 
     board = [[0, -1, 0, -1, 0, -1, 0, -1],
@@ -187,33 +18,6 @@ const initBoard = () => {
              [1, 0, 1, 0, 1, 0, 1, 0],
              [0, 1, 0, 1, 0, 1, 0, 1],
              [1, 0, 1, 0, 1, 0, 1, 0]];
-
-    // board = [[0, 0, 0, 0, 0, 0, 0, 0],
-    //          [0, 0, 0, 0, 0, 0, 0, 0],
-    //          [0, 0, 0, 0, 0, -2, 0, 0],
-    //          [0, 0, 0, 0, 0, 0, 0, 0],
-    //          [0, 0, 0, -2, 0, 0, 0, 0],
-    //          [0, 0, 2, 0, 0, 0, 0, 0],
-    //          [0, 0, 0, 0, 0, 0, 0, 0],
-    //          [0, 0, 0, 0, 0, 0, 0, 0]];
-
-    // board = [[0, 0, 0, 0, 0, 0, 0, 0],
-    //         [0, 0, 0, 0, 0, 0, -2, 0],
-    //         [0, 0, 0, 2, 0, 0, 0, 0],
-    //         [0, 0, 0, 0, 0, 0, 2, 0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0]];
-
-    // board = [[0, -2, 0, 0, 0, 0, 0, 0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [0, 0, 0, 2, 0, 0, 0, 0],
-    //         [0, 0, 2, 0, 0, 0, 0, 0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0],
-    //         [0, 0, 0, 0, 0, 0, 0, 0]];
 }
 
 const validMove = (board,r1,c1,r2,c2) => {
@@ -334,37 +138,10 @@ const win = (board, player) => {
     return true;
 }
 
-
-// const getStep = () => {
-
-//     let [sq1, sq2 ] = steps.shift();
-
-//     let r1 = Math.trunc((sq1 - 1) / 4);
-//     let c1 = (sq1 - 1) % 4 * 2 + (r1 % 2 == 0 ? 1 : 0);
-
-
-//     let r2 = Math.trunc((sq2 - 1) / 4);
-//     let c2 = (sq2 - 1) % 4 * 2 + (r2 % 2 == 0 ? 1 : 0);
-
-//     console.log(r1,c1,r2,c2);
-
-//     return [7 - r1,7 - c1,7 - r2,7 - c2];
-
-//     // return [r1,c1,r2,c2];
-
-// }
-
 const aiMove = (r = null, c = null) => {
 
     let timeLimit = 500;
-    // let [r1,c1,r2,c2] = randomAI(board, r, c);
     let [r1,c1,r2,c2] = minimax(board, Infinity, timeLimit, r, c);
-    // let [r1,c1,r2,c2] = player == black ?  minimax(board, 4, timeLimit, r, c) : minimax(board, Infinity, timeLimit, r, c);
-
-    // let [r1,c1,r2,c2] = getStep();
-
-    // let [r1,c1,r2,c2] = steps2.shift();
-
     let king = makeMove(board,r1,c1,r2,c2);
 
     movePiece(r1,c1,r2,c2);
@@ -383,8 +160,6 @@ const aiMove = (r = null, c = null) => {
     player = -player;
 
     enableTouch();
-
-    if (auto) setTimeout(aiMove, 600); //
 }
 
 const newGame = () => {
@@ -417,8 +192,6 @@ const newGame = () => {
         [white, black] = [black, white];
         player = black;
         multiJump = false;
-
-        moves = []; //
 
         initBoard(false);
         fillBoard();
@@ -484,8 +257,6 @@ const init = () => {
     enableTouch();
     enableReset();
     showBoard();
-
-    if (auto) setTimeout(aiMove, 4000); //
 }
 
 window.addEventListener('load', () => document.fonts.ready.then(init));
